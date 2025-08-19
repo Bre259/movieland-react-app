@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 const LoginPage = ({ onLogin }) => {
   const [isRegister, setIsRegister] = useState(false);
@@ -11,8 +12,7 @@ const LoginPage = ({ onLogin }) => {
   const [regError, setRegError] = useState("");
   const [regSuccess, setRegSuccess] = useState("");
 
-  // For demo: store registered user in localStorage
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setRegError("");
     setRegSuccess("");
@@ -24,27 +24,35 @@ const LoginPage = ({ onLogin }) => {
       setRegError("Passwords do not match");
       return;
     }
-    // Save to localStorage (for demo only)
-    localStorage.setItem("registeredEmail", regEmail);
-    localStorage.setItem("registeredPassword", regPassword);
-    setRegSuccess("Registration successful! You can now log in.");
-    setRegEmail("");
-    setRegPassword("");
-    setRegConfirm("");
-    setIsRegister(false);
+    try {
+      // Call backend API to register
+      const response = await axios.post("/api/register", {
+        email: regEmail,
+        password: regPassword,
+      });
+      setRegSuccess(response.data.message);
+      setRegEmail("");
+      setRegPassword("");
+      setRegConfirm("");
+      setIsRegister(false);
+    } catch (err) {
+      setRegError(err.response.data.error);
+    }
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-    // Check against registered user in localStorage
-    const savedEmail = localStorage.getItem("registeredEmail") || "user@example.com";
-    const savedPassword = localStorage.getItem("registeredPassword") || "586358";
-    if (email === savedEmail && password === savedPassword) {
+    try {
+      // Call backend API to login
+      const response = await axios.post("/api/login", {
+        email,
+        password,
+      });
       setError("");
       if (onLogin) onLogin();
-    } else {
-      setError("Invalid email or password");
+    } catch (err) {
+      setError(err.response.data.error);
     }
   };
 
