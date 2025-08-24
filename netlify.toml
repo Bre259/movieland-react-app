@@ -1,0 +1,13 @@
+[build]
+  publish = "build"
+  command = "npm run build"
+  functions = "src/netlify/functions"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+[[edge_functions]]
+  function = "api"
+  path = "/edge-api"

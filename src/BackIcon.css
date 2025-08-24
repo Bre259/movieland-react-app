@@ -1,0 +1,152 @@
+/* BackIcon.css */
+.back-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-size: 14px;
+  color: inherit;
+  text-decoration: none;
+  user-select: none;
+}
+
+.back-icon:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  transform: translateX(-2px);
+}
+
+.back-icon:active {
+  transform: translateX(-1px);
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.back-icon:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.back-icon-symbol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-icon-label {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Variant styles */
+.back-icon.minimal {
+  padding: 4px;
+  border-radius: 50%;
+}
+
+.back-icon.minimal .back-icon-label {
+  display: none;
+}
+
+.back-icon.compact {
+  padding: 6px 8px;
+  font-size: 12px;
+  gap: 4px;
+}
+
+.back-icon.large {
+  padding: 12px 16px;
+  font-size: 16px;
+  gap: 10px;
+}
+
+/* Color variants */
+.back-icon.primary {
+  color: #007bff;
+}
+
+.back-icon.primary:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  color: #0056b3;
+}
+
+.back-icon.secondary {
+  color: #6c757d;
+}
+
+.back-icon.secondary:hover {
+  background-color: rgba(108, 117, 125, 0.1);
+  color: #495057;
+}
+
+.back-icon.danger {
+  color: #dc3545;
+}
+
+.back-icon.danger:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #c82333;
+}
+
+.back-icon.success {
+  color: #28a745;
+}
+
+.back-icon.success:hover {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: #1e7e34;
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .back-icon {
+    color: #e9ecef;
+  }
+
+  .back-icon:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .back-icon:active {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .back-icon {
+    padding: 10px 14px;
+    font-size: 16px;
+    gap: 6px;
+  }
+
+  .back-icon.compact {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .back-icon.minimal {
+    padding: 8px;
+  }
+}
+
+/* Animation for hover effect */
+@keyframes slideLeft {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-3px);
+  }
+  100% {
+    transform: translateX(-2px);
+  }
+}
+
+.back-icon:hover .back-icon-symbol {
+  animation: slideLeft 0.3s ease;
+}

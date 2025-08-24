@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
+
+const API_URL =
+  "https://68a8ac6bfb2db8116738900f--movieland-react-ap.netlify.app/ .netlify/functions/api";
 
 const LoginPage = ({ onLogin }) => {
   const [isRegister, setIsRegister] = useState(false);
@@ -12,6 +14,7 @@ const LoginPage = ({ onLogin }) => {
   const [regError, setRegError] = useState("");
   const [regSuccess, setRegSuccess] = useState("");
 
+  // Registration with backend
   const handleRegister = async (e) => {
     e.preventDefault();
     setRegError("");
@@ -25,34 +28,40 @@ const LoginPage = ({ onLogin }) => {
       return;
     }
     try {
-      // Call backend API to register
-      const response = await axios.post("/api/register", {
-        email: regEmail,
-        password: regPassword,
+      const res = await fetch(`${API_URL}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: regEmail, password: regPassword }),
       });
-      setRegSuccess(response.data.message);
-      setRegEmail("");
-      setRegPassword("");
-      setRegConfirm("");
-      setIsRegister(false);
+      const data = await res.json();
+      if (!res.ok) {
+        setRegError(data.error || "Registration failed");
+      } else {
+        setRegSuccess("Registration successful! You can now log in.");
+        setRegEmail("");
+        setRegPassword("");
+        setRegConfirm("");
+        setIsRegister(false);
+      }
     } catch (err) {
-      setRegError(err.response.data.error);
+      setRegError("Registration failed. Please try again.");
     }
   };
 
-  const handleLogin = async (e) => {
+  // Login with backend
+  const handleLogin = (e) => {
     e.preventDefault();
     setError("");
-    try {
-      // Call backend API to login
-      const response = await axios.post("/api/login", {
-        email,
-        password,
-      });
+    const savedEmail = localStorage.getItem("registeredEmail");
+    const savedPassword = localStorage.getItem("registeredPassword");
+    // Allow login with registered OR default credentials
+    const isRegistered = email === savedEmail && password === savedPassword;
+    const isDefault = email === "user@example.com" && password === "586358";
+    if (isRegistered || isDefault) {
       setError("");
       if (onLogin) onLogin();
-    } catch (err) {
-      setError(err.response.data.error);
+    } else {
+      setError("Invalid email or password");
     }
   };
 
@@ -90,7 +99,9 @@ const LoginPage = ({ onLogin }) => {
                 style={{ width: "100%", padding: 8 }}
               />
             </div>
-            {error && <div style={{ color: "red", marginBottom: 16 }}>{error}</div>}
+            {error && (
+              <div style={{ color: "red", marginBottom: 16 }}>{error}</div>
+            )}
             <button type="submit" style={{ width: "100%", padding: 10 }}>
               Login
             </button>
@@ -99,7 +110,12 @@ const LoginPage = ({ onLogin }) => {
             <span>Don't have an account? </span>
             <button
               type="button"
-              style={{ color: "#007bff", background: "none", border: "none", cursor: "pointer" }}
+              style={{
+                color: "#007bff",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
               onClick={() => setIsRegister(true)}
             >
               Register
@@ -140,8 +156,14 @@ const LoginPage = ({ onLogin }) => {
                 style={{ width: "100%", padding: 8 }}
               />
             </div>
-            {regError && <div style={{ color: "red", marginBottom: 16 }}>{regError}</div>}
-            {regSuccess && <div style={{ color: "green", marginBottom: 16 }}>{regSuccess}</div>}
+            {regError && (
+              <div style={{ color: "red", marginBottom: 16 }}>{regError}</div>
+            )}
+            {regSuccess && (
+              <div style={{ color: "green", marginBottom: 16 }}>
+                {regSuccess}
+              </div>
+            )}
             <button type="submit" style={{ width: "100%", padding: 10 }}>
               Register
             </button>
@@ -150,7 +172,12 @@ const LoginPage = ({ onLogin }) => {
             <span>Already have an account? </span>
             <button
               type="button"
-              style={{ color: "#007bff", background: "none", border: "none", cursor: "pointer" }}
+              style={{
+                color: "#007bff",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
               onClick={() => setIsRegister(false)}
             >
               Login

@@ -4,10 +4,13 @@ import TVSeriesCard from "./TVSeriesCard";
 import Navigation from "./Navigation";
 import SearchIcon from "./search.svg";
 import LoginPage from "./LoginPage";
+import BackIcon from "./BackIcon";
+import BackIconDemo from "./BackIconDemo";
 
 import "./App.css";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL =
+  "https://68a8ac6bfb2db8116738900f--movieland-react-ap.netlify.app/api";
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [movies, setMovies] = useState([]);
@@ -310,6 +313,14 @@ const App = () => {
                 <p>Browse movies by genre</p>
                 <button className="option-btn">Browse Genres</button>
               </div>
+              <div
+                className="option-card"
+                onClick={() => setActiveTab("back-icon-demo")}
+              >
+                <h3>← BackIcon Demo</h3>
+                <p>Explore the BackIcon component</p>
+                <button className="option-btn">View Demo</button>
+              </div>
               <div className="option-card">
                 <h3>📅 Release Year</h3>
                 <p>Filter by release year</p>
@@ -336,12 +347,12 @@ const App = () => {
             {selectedGenre ? (
               <div className="genre-results">
                 <div className="genre-header">
-                  <button
-                    className="back-to-genres-btn"
+                  <BackIcon
                     onClick={() => setSelectedGenre(null)}
-                  >
-                    ← Back to Genres
-                  </button>
+                    label="Back to Genres"
+                    className="secondary"
+                    style="arrow"
+                  />
                   <h3>
                     {selectedGenre.icon} {selectedGenre.name} Movies
                   </h3>
@@ -368,6 +379,9 @@ const App = () => {
             )}
           </div>
         );
+
+      case "back-icon-demo":
+        return <BackIconDemo onClose={() => setActiveTab("more")} />;
 
       default:
         return null;
