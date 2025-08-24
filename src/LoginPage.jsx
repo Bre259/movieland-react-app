@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const API_URL =
-  "https://68a8ac6bfb2db8116738900f--movieland-react-ap.netlify.app/ .netlify/functions/api";
+  "https://68a8ac6bfb2db8116738900f--movieland-react-ap.netlify.app/api";
 
 const LoginPage = ({ onLogin }) => {
   const [isRegister, setIsRegister] = useState(false);

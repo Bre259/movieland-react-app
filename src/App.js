@@ -6,11 +6,24 @@ import SearchIcon from "./search.svg";
 import LoginPage from "./LoginPage";
 import BackIcon from "./BackIcon";
 import BackIconDemo from "./BackIconDemo";
+import ApiTestPage from "./ApiTestPage";
 
 import "./App.css";
 
-const API_URL =
+// API Configuration with fallback
+const NETLIFY_API_URL =
   "https://68a8ac6bfb2db8116738900f--movieland-react-ap.netlify.app/api";
+const LOCAL_API_URL = "http://localhost:5000/api";
+const OMDB_DIRECT_URL = "http://www.omdbapi.com";
+const OMDB_API_KEY = "33ac2980";
+
+// Helper function to determine which API to use
+const getApiUrl = () => {
+  // Try Netlify first, fallback to local if needed
+  return NETLIFY_API_URL;
+};
+
+const API_URL = getApiUrl();
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [movies, setMovies] = useState([]);
@@ -22,6 +35,7 @@ const App = () => {
   const [watchlist, setWatchlist] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [apiStatus, setApiStatus] = useState("testing"); // 'testing', 'netlify', 'direct', 'offline'
 
   const genres = [
     { id: "action", name: "Action", icon: "💥", color: "#ff6b6b" },
@@ -38,9 +52,102 @@ const App = () => {
     { id: "family", name: "Family", icon: "👨‍👩‍👧‍👦", color: "#ff6348" },
   ];
 
+  // Test API connectivity
+  const testApiConnectivity = async () => {
+    console.log("Testing API connectivity...");
+    setApiStatus("testing");
+
+    // Test Netlify Functions
+    try {
+      const response = await fetch(`${API_URL}/health`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log("✅ Netlify Functions working:", data);
+        setApiStatus("netlify");
+        return "netlify";
+      } else {
+        console.warn("❌ Netlify Functions not responding:", response.status);
+      }
+    } catch (error) {
+      console.warn("❌ Netlify Functions error:", error.message);
+    }
+
+    // Test direct OMDB API
+    try {
+      const response = await fetch(
+        `${OMDB_DIRECT_URL}?apikey=${OMDB_API_KEY}&s=batman&page=1`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        if (data.Response === "True") {
+          console.log(
+            "✅ Direct OMDB API working:",
+            data.totalResults,
+            "results"
+          );
+          setApiStatus("direct");
+          return "direct";
+        } else {
+          console.warn("❌ OMDB API returned error:", data.Error);
+        }
+      } else {
+        console.warn("❌ OMDB API not responding:", response.status);
+      }
+    } catch (error) {
+      console.warn("❌ Direct OMDB API error:", error.message);
+    }
+
+    setApiStatus("offline");
+    return "none";
+  };
+
   useEffect(() => {
+    // Test API connectivity on app load
+    testApiConnectivity().then((result) => {
+      console.log("API connectivity test result:", result);
+    });
+
     searchMovies("BatMan", 1);
   }, []);
+
+  // Fallback function for direct OMDB API calls
+  const searchMoviesDirectly = async (title, page = 1, type = null) => {
+    try {
+      let searchUrl = `${OMDB_DIRECT_URL}?apikey=${OMDB_API_KEY}&s=${encodeURIComponent(
+        title
+      )}&page=${page}`;
+      if (type) {
+        searchUrl += `&type=${type}`;
+      }
+
+      const response = await fetch(searchUrl);
+      const data = await response.json();
+
+      if (data.Response === "False") {
+        throw new Error(data.Error || "No movies found");
+      }
+
+      // Add pagination info to match expected format
+      const totalResults = parseInt(data.totalResults) || 0;
+      const resultsPerPage = 10;
+      const totalPages = Math.ceil(totalResults / resultsPerPage);
+      const currentPage = parseInt(page);
+
+      return {
+        ...data,
+        pagination: {
+          currentPage,
+          totalPages,
+          totalResults,
+          resultsPerPage,
+          hasNextPage: currentPage < totalPages,
+          hasPrevPage: currentPage > 1,
+        },
+      };
+    } catch (error) {
+      throw new Error(`Direct API call failed: ${error.message}`);
+    }
+  };
 
   const searchMovies = async (title, page = 1) => {
     if (!title.trim()) return;
@@ -49,15 +156,21 @@ const App = () => {
     setError("");
 
     try {
+      // First try Netlify Functions
       const response = await fetch(
         `${API_URL}/movies/search?title=${encodeURIComponent(
           title
         )}&page=${page}`
       );
-      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch movies");
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
       }
 
       console.log("API Response:", data); // Debug log
@@ -66,10 +179,28 @@ const App = () => {
       setPagination(data.pagination);
       setCurrentPage(page);
     } catch (error) {
-      console.error("Error searching movies:", error);
-      setError(error.message);
-      setMovies([]);
-      setPagination(null);
+      console.warn(
+        "Netlify Functions failed, trying direct OMDB API:",
+        error.message
+      );
+
+      try {
+        // Fallback to direct OMDB API
+        const data = await searchMoviesDirectly(title, page);
+        console.log("Fallback API Response:", data);
+
+        setMovies(data.Search || []);
+        setPagination(data.pagination);
+        setCurrentPage(page);
+
+        // Show a warning that we're using fallback
+        console.warn("Using direct OMDB API as fallback");
+      } catch (fallbackError) {
+        console.error("Both APIs failed:", fallbackError);
+        setError(`Failed to fetch movies: ${fallbackError.message}`);
+        setMovies([]);
+        setPagination(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -80,43 +211,64 @@ const App = () => {
     setError("");
     setSelectedGenre(genre);
 
-    try {
-      // Search for popular movies in that genre
-      const searchTerms = {
-        action: "action movie",
-        adventure: "adventure movie",
-        comedy: "comedy movie",
-        drama: "drama movie",
-        horror: "horror movie",
-        romance: "romance movie",
-        "sci-fi": "science fiction movie",
-        thriller: "thriller movie",
-        fantasy: "fantasy movie",
-        animation: "animated movie",
-        documentary: "documentary",
-        family: "family movie",
-      };
+    // Search terms mapping for different genres
+    const searchTerms = {
+      action: "action movie",
+      adventure: "adventure movie",
+      comedy: "comedy movie",
+      drama: "drama movie",
+      horror: "horror movie",
+      romance: "romance movie",
+      "sci-fi": "science fiction movie",
+      thriller: "thriller movie",
+      fantasy: "fantasy movie",
+      animation: "animated movie",
+      documentary: "documentary",
+      family: "family movie",
+    };
 
+    try {
+      // First try Netlify Functions
       const searchTerm = searchTerms[genre.id] || genre.name;
       const response = await fetch(
         `${API_URL}/movies/search?title=${encodeURIComponent(
           searchTerm
         )}&page=${page}`
       );
-      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch movies");
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
       }
 
       setMovies(data.Search || []);
       setPagination(data.pagination);
       setCurrentPage(page);
     } catch (error) {
-      console.error("Error searching by genre:", error);
-      setError(error.message);
-      setMovies([]);
-      setPagination(null);
+      console.warn(
+        "Netlify Functions failed for genre search, trying direct OMDB API:",
+        error.message
+      );
+
+      try {
+        // Fallback to direct OMDB API
+        const searchTerm = searchTerms[genre.id] || genre.name;
+        const data = await searchMoviesDirectly(searchTerm, page);
+
+        setMovies(data.Search || []);
+        setPagination(data.pagination);
+        setCurrentPage(page);
+      } catch (fallbackError) {
+        console.error("Both APIs failed for genre search:", fallbackError);
+        setError(`Failed to search by genre: ${fallbackError.message}`);
+        setMovies([]);
+        setPagination(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -129,25 +281,45 @@ const App = () => {
     setError("");
 
     try {
+      // First try Netlify Functions
       const response = await fetch(
         `${API_URL}/movies/search?title=${encodeURIComponent(
           title
         )}&page=${page}&type=series`
       );
-      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch TV series");
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
       }
 
       setMovies(data.Search || []);
       setPagination(data.pagination);
       setCurrentPage(page);
     } catch (error) {
-      console.error("Error searching TV series:", error);
-      setError(error.message);
-      setMovies([]);
-      setPagination(null);
+      console.warn(
+        "Netlify Functions failed for TV series, trying direct OMDB API:",
+        error.message
+      );
+
+      try {
+        // Fallback to direct OMDB API
+        const data = await searchMoviesDirectly(title, page, "series");
+
+        setMovies(data.Search || []);
+        setPagination(data.pagination);
+        setCurrentPage(page);
+      } catch (fallbackError) {
+        console.error("Both APIs failed for TV series:", fallbackError);
+        setError(`Failed to search TV series: ${fallbackError.message}`);
+        setMovies([]);
+        setPagination(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -321,6 +493,14 @@ const App = () => {
                 <p>Explore the BackIcon component</p>
                 <button className="option-btn">View Demo</button>
               </div>
+              <div
+                className="option-card"
+                onClick={() => setActiveTab("api-test")}
+              >
+                <h3>🔍 API Test</h3>
+                <p>Test API connectivity</p>
+                <button className="option-btn">Run Tests</button>
+              </div>
               <div className="option-card">
                 <h3>📅 Release Year</h3>
                 <p>Filter by release year</p>
@@ -382,6 +562,9 @@ const App = () => {
 
       case "back-icon-demo":
         return <BackIconDemo onClose={() => setActiveTab("more")} />;
+
+      case "api-test":
+        return <ApiTestPage onBack={() => setActiveTab("more")} />;
 
       default:
         return null;
