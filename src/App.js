@@ -13,7 +13,6 @@ import "./App.css";
 // API Configuration with fallback
 const NETLIFY_API_URL =
   "https://68a8ac6bfb2db8116738900f--movieland-react-ap.netlify.app/api";
-const LOCAL_API_URL = "http://localhost:5000/api";
 const OMDB_DIRECT_URL = "http://www.omdbapi.com";
 const OMDB_API_KEY = "33ac2980";
 
@@ -35,7 +34,6 @@ const App = () => {
   const [watchlist, setWatchlist] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [apiStatus, setApiStatus] = useState("testing"); // 'testing', 'netlify', 'direct', 'offline'
 
   const genres = [
     { id: "action", name: "Action", icon: "💥", color: "#ff6b6b" },
@@ -55,7 +53,6 @@ const App = () => {
   // Test API connectivity
   const testApiConnectivity = async () => {
     console.log("Testing API connectivity...");
-    setApiStatus("testing");
 
     // Test Netlify Functions
     try {
@@ -63,7 +60,6 @@ const App = () => {
       if (response.ok) {
         const data = await response.json();
         console.log("✅ Netlify Functions working:", data);
-        setApiStatus("netlify");
         return "netlify";
       } else {
         console.warn("❌ Netlify Functions not responding:", response.status);
@@ -85,7 +81,6 @@ const App = () => {
             data.totalResults,
             "results"
           );
-          setApiStatus("direct");
           return "direct";
         } else {
           console.warn("❌ OMDB API returned error:", data.Error);
@@ -97,18 +92,24 @@ const App = () => {
       console.warn("❌ Direct OMDB API error:", error.message);
     }
 
-    setApiStatus("offline");
     return "none";
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // Test API connectivity on app load
-    testApiConnectivity().then((result) => {
-      console.log("API connectivity test result:", result);
-    });
+    const initializeApp = async () => {
+      try {
+        await testApiConnectivity();
+        await searchMovies("BatMan", 1);
+      } catch (error) {
+        console.error("Failed to initialize app:", error);
+      }
+    };
 
-    searchMovies("BatMan", 1);
-  }, []);
+    initializeApp();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array is intentional for initialization
 
   // Fallback function for direct OMDB API calls
   const searchMoviesDirectly = async (title, page = 1, type = null) => {
@@ -531,7 +532,7 @@ const App = () => {
                     onClick={() => setSelectedGenre(null)}
                     label="Back to Genres"
                     className="secondary"
-                    style="arrow"
+                    iconStyle="arrow"
                   />
                   <h3>
                     {selectedGenre.icon} {selectedGenre.name} Movies

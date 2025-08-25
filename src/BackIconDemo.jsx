@@ -56,9 +56,9 @@ const BackIconDemo = ({ onClose }) => {
       description: "Arrow, chevron, and text styles",
       component: (
         <div className="style-examples">
-          <BackIcon onClick={onClose} style="arrow" label="Arrow" />
-          <BackIcon onClick={onClose} style="chevron" label="Chevron" />
-          <BackIcon onClick={onClose} style="text" label="Text" />
+          <BackIcon onClick={onClose} iconStyle="arrow" label="Arrow" />
+          <BackIcon onClick={onClose} iconStyle="chevron" label="Chevron" />
+          <BackIcon onClick={onClose} iconStyle="text" label="Text" />
         </div>
       ),
     },
@@ -114,9 +114,9 @@ const BackIconDemo = ({ onClose }) => {
 <BackIcon onClick={handleBack} size={24} />
 <BackIcon onClick={handleBack} className="large" size={32} />`}
                 {currentExample === "styles" &&
-                  `<BackIcon onClick={handleBack} style="arrow" />
-<BackIcon onClick={handleBack} style="chevron" />
-<BackIcon onClick={handleBack} style="text" />`}
+                  `<BackIcon onClick={handleBack} iconStyle="arrow" />
+<BackIcon onClick={handleBack} iconStyle="chevron" />
+<BackIcon onClick={handleBack} iconStyle="text" />`}
               </code>
             </pre>
           </div>
@@ -146,8 +146,8 @@ const BackIconDemo = ({ onClose }) => {
               <code>showLabel={`{false}`}</code> to hide text
             </li>
             <li>
-              <strong>Icon Style:</strong> Use <code>style</code> prop: "arrow",
-              "chevron", or "text"
+              <strong>Icon Style:</strong> Use <code>iconStyle</code> prop:
+              "arrow", "chevron", or "text"
             </li>
           </ul>
         </div>

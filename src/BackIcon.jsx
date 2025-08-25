@@ -8,7 +8,7 @@ const BackIcon = ({
   className = "",
   label = "Back",
   showLabel = true,
-  style = "arrow", // 'arrow', 'chevron', or 'text'
+  iconStyle = "arrow", // 'arrow', 'chevron', or 'text'
 }) => {
   const handleClick = () => {
     if (onClick) {
@@ -20,7 +20,7 @@ const BackIcon = ({
   };
 
   const renderIcon = () => {
-    switch (style) {
+    switch (iconStyle) {
       case "chevron":
         return (
           <svg
