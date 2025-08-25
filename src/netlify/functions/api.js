@@ -2,7 +2,7 @@ const axios = require("axios");
 
 // OMDB API configuration
 const OMDB_API_KEY = process.env.OMDB_API_KEY || "33ac2980";
-const OMDB_BASE_URL = "http://www.omdbapi.com";
+const OMDB_BASE_URL = "https://www.omdbapi.com";
 
 exports.handler = async (event, context) => {
   // Enable CORS
@@ -32,6 +32,23 @@ exports.handler = async (event, context) => {
         body: JSON.stringify({
           status: "OK",
           message: "MovieLand Backend is running!",
+          timestamp: new Date().toISOString(),
+          environment: {
+            hasOMDBKey: !!OMDB_API_KEY,
+            nodeVersion: process.version,
+          },
+        }),
+      };
+    }
+
+    // Simple ping endpoint for testing
+    if (path === "/.netlify/functions/api/ping" || path === "/ping") {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          status: "pong",
+          timestamp: new Date().toISOString(),
         }),
       };
     }
@@ -58,7 +75,10 @@ exports.handler = async (event, context) => {
         searchUrl += `&type=${type}`;
       }
 
+      console.log("Making request to OMDB API:", searchUrl);
       const response = await axios.get(searchUrl);
+      console.log("OMDB API response status:", response.status);
+      console.log("OMDB API response data:", response.data);
 
       if (response.data.Response === "False") {
         return {
@@ -171,12 +191,19 @@ exports.handler = async (event, context) => {
     };
   } catch (error) {
     console.error("Function error:", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      config: error.config,
+      response: error.response?.data,
+    });
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
         error: "Internal server error",
         details: error.message,
+        timestamp: new Date().toISOString(),
       }),
     };
   }

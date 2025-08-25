@@ -13,7 +13,7 @@ import "./App.css";
 // API Configuration with fallback
 const NETLIFY_API_URL =
   "https://68a8ac6bfb2db8116738900f--movieland-react-ap.netlify.app/api";
-const OMDB_DIRECT_URL = "http://www.omdbapi.com";
+const OMDB_DIRECT_URL = "https://www.omdbapi.com";
 const OMDB_API_KEY = "33ac2980";
 
 // Helper function to determine which API to use
@@ -121,8 +121,16 @@ const App = () => {
         searchUrl += `&type=${type}`;
       }
 
+      console.log("Attempting to fetch from:", searchUrl);
       const response = await fetch(searchUrl);
+      console.log("Response status:", response.status);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
       const data = await response.json();
+      console.log("Response data:", data);
 
       if (data.Response === "False") {
         throw new Error(data.Error || "No movies found");
