@@ -34,6 +34,7 @@ const App = () => {
   const [watchlist, setWatchlist] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [apiStatus, setApiStatus] = useState("unknown"); // 'netlify', 'fallback', 'unknown'
 
   const genres = [
     { id: "action", name: "Action", icon: "💥", color: "#ff6b6b" },
@@ -187,6 +188,7 @@ const App = () => {
       setMovies(data.Search || []);
       setPagination(data.pagination);
       setCurrentPage(page);
+      setApiStatus("netlify");
     } catch (error) {
       console.warn(
         "Netlify Functions failed, trying direct OMDB API:",
@@ -201,12 +203,21 @@ const App = () => {
         setMovies(data.Search || []);
         setPagination(data.pagination);
         setCurrentPage(page);
+        setApiStatus("fallback");
 
-        // Show a warning that we're using fallback
-        console.warn("Using direct OMDB API as fallback");
+        // Show a informational message that we're using fallback
+        console.info(
+          "✅ Using direct OMDB API as fallback - app functioning normally"
+        );
       } catch (fallbackError) {
         console.error("Both APIs failed:", fallbackError);
-        setError(`Failed to fetch movies: ${fallbackError.message}`);
+        if (fallbackError.message.includes("Failed to fetch")) {
+          setError(
+            `Connection failed. Please check your internet connection and try again.`
+          );
+        } else {
+          setError(`Failed to fetch movies: ${fallbackError.message}`);
+        }
         setMovies([]);
         setPagination(null);
       }
@@ -859,7 +870,24 @@ const App = () => {
           padding: "0 12px",
         }}
       >
-        <h1 style={{ margin: 0 }}>MovieLand</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <h1 style={{ margin: 0 }}>MovieLand</h1>
+          {apiStatus === "fallback" && (
+            <span
+              style={{
+                fontSize: "0.75rem",
+                color: "#feca57",
+                backgroundColor: "rgba(254, 202, 87, 0.1)",
+                padding: "2px 6px",
+                borderRadius: "4px",
+                border: "1px solid rgba(254, 202, 87, 0.3)",
+              }}
+              title="Using direct OMDB API - Netlify Functions unavailable"
+            >
+              ⚠️ Fallback Mode
+            </span>
+          )}
+        </div>
 
         {/* Navigation and logout grouped in the same bar */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
