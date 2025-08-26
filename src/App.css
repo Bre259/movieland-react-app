@@ -242,11 +242,71 @@ h1 {
   padding: 2rem;
 }
 
+.loading-spinner {
+  font-size: 2rem;
+  margin-top: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .error {
   text-align: center;
   color: #ff6b6b;
   font-size: 1.2rem;
   padding: 2rem;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.error h3 {
+  color: #ff6b6b;
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+}
+
+.error-actions {
+  margin-top: 1.5rem;
+}
+
+.retry-btn {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f9d3b4, #e6c29d);
+  color: #1f2123;
+  font-family: var(--font-raleway);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(249, 211, 180, 0.3);
+  margin-bottom: 1rem;
+}
+
+.retry-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(249, 211, 180, 0.4);
+  background: linear-gradient(135deg, #e6c29d, #d4b89a);
+}
+
+.error-tip {
+  color: #ccc;
+  font-size: 0.9rem;
+  font-family: var(--font-raleway);
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  border-left: 3px solid #f9d3b4;
 }
 
 .movie-details {
@@ -298,16 +358,19 @@ h1 {
   font-weight: 500;
 }
 
-.movie-director, .movie-actors {
+.movie-director,
+.movie-actors {
   color: #ccc;
   font-size: 0.9rem;
 }
 
-.movie-details-plot, .movie-details-awards {
+.movie-details-plot,
+.movie-details-awards {
   margin-top: 2rem;
 }
 
-.movie-details-plot h3, .movie-details-awards h3 {
+.movie-details-plot h3,
+.movie-details-awards h3 {
   color: #fff;
   font-size: 1.3rem;
   margin-bottom: 1rem;
@@ -315,7 +378,8 @@ h1 {
   padding-bottom: 0.5rem;
 }
 
-.movie-details-plot p, .movie-details-awards p {
+.movie-details-plot p,
+.movie-details-awards p {
   line-height: 1.6;
   color: #ccc;
   font-family: var(--font-raleway);
@@ -1159,7 +1223,7 @@ h1 {
 }
 
 .genre-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
