@@ -24,3 +24,16 @@ yarn-error.log*
 
 # Local Netlify folder
 .netlify
+
+# Temporary files
+*.tmp
+*.temp
+test-api.js
+
+# IDE files
+.vscode/settings.json
+*.swp
+*.swo
+
+# Function dependencies
+src/netlify/functions/node_modules/
