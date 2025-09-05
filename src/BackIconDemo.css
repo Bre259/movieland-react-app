@@ -1,0 +1,188 @@
+/* BackIconDemo.css */
+.back-icon-demo {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+}
+
+.demo-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.demo-header h1 {
+  margin: 0;
+  color: #333;
+  font-size: 2rem;
+}
+
+.demo-navigation {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.demo-nav-btn {
+  padding: 10px 16px;
+  border: 1px solid #ddd;
+  background: #f8f9fa;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.demo-nav-btn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.demo-nav-btn.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.demo-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.example-section {
+  background: #f8f9fa;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.example-section h2 {
+  margin-top: 0;
+  color: #495057;
+}
+
+.example-section p {
+  color: #6c757d;
+  margin-bottom: 20px;
+}
+
+.example-preview {
+  background: white;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  min-height: 60px;
+}
+
+.styled-examples,
+.size-examples,
+.style-examples {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.example-code {
+  background: #2d3748;
+  color: #e2e8f0;
+  padding: 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.example-code h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #90cdf4;
+  font-size: 1rem;
+}
+
+.example-code pre {
+  margin: 0;
+  font-family: "Consolas", "Monaco", "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.example-code code {
+  color: #e2e8f0;
+}
+
+.usage-section {
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  height: fit-content;
+}
+
+.usage-section h3 {
+  margin-top: 0;
+  color: #495057;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 8px;
+}
+
+.usage-section ul {
+  padding-left: 20px;
+}
+
+.usage-section li {
+  margin-bottom: 8px;
+  color: #6c757d;
+  line-height: 1.5;
+}
+
+.usage-section strong {
+  color: #495057;
+}
+
+.usage-section code {
+  background: #f8f9fa;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: "Consolas", "Monaco", "Courier New", monospace;
+  font-size: 13px;
+  color: #e83e8c;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .demo-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .demo-navigation {
+    flex-direction: column;
+  }
+
+  .demo-nav-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .styled-examples,
+  .size-examples,
+  .style-examples {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .example-preview {
+    padding: 16px;
+  }
+}
