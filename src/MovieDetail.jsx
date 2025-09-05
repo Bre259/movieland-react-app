@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import LoadingSpinner from "./LoadingSpinner";
 
 const API_URL = "http://www.omdbapi.com?apikey=33ac2980";
 
