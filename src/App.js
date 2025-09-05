@@ -3,7 +3,6 @@ import MovieCard from "./MovieCard";
 import SearchIcon from "./search.svg";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import SkeletonCard from "./SkeletonCard";
-import LoadingSpinner from "./LoadingSpinner";
 
 import "./App.css";
 import MovieDetail from "./MovieDetail";
