@@ -10,7 +10,7 @@ import Login from "./Login";
 import Register from "./Register";
 import ForgotPassword from "./ForgotPassword";
 
-const API_URL = "http://www.omdbapi.com?apikey=33ac2980";
+const API_URL = `https://www.omdbapi.com/?apikey=${process.env.REACT_APP_OMDB_KEY}`;
 
 const MovieList = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,14 +29,23 @@ const MovieList = () => {
     setLoading(true);
     setSearchLoading(true);
     try {
-      const response = await fetch(`${API_URL}&s=${title}&page=${pageNum}`);
+      const url = `${API_URL}&s=${encodeURIComponent(title)}&page=${pageNum}`;
+      const response = await fetch(url);
       const data = await response.json();
-      setMovies(data.Search || []);
-      setTotalResults(parseInt(data.totalResults) || 0);
-      setPage(pageNum);
+      if (data.Response === "False") {
+        console.error("OMDb error:", data.Error);
+        setMovies([]);
+        setTotalResults(0);
+        setPage(pageNum);
+      } else {
+        setMovies(data.Search || []);
+        setTotalResults(parseInt(data.totalResults) || 0);
+        setPage(pageNum);
+      }
     } catch (error) {
-      console.error('Error fetching movies:', error);
+      console.error("Error fetching movies:", error);
       setMovies([]);
+      setTotalResults(0);
     } finally {
       setLoading(false);
       setSearchLoading(false);
@@ -58,25 +67,37 @@ const MovieList = () => {
     <div className="app">
       <div className="header-actions">
         <button onClick={handleLogout} className="logout-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16,17 21,12 16,7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16,17 21,12 16,7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
           Logout
         </button>
       </div>
       <h1>MovieLand</h1>
       <nav className="category-nav">
-        {['Action', 'Comedy', 'Drama', 'Horror', 'Romance', 'Sci-Fi'].map((cat) => (
-          <button
-            key={cat}
-            className="category-btn"
-            onClick={() => { setSearchTerm(cat); searchMovies(cat, 1); }}
-          >
-            {cat}
-          </button>
-        ))}
+        {["Action", "Comedy", "Drama", "Horror", "Romance", "Sci-Fi"].map(
+          (cat) => (
+            <button
+              key={cat}
+              className="category-btn"
+              onClick={() => {
+                setSearchTerm(cat);
+                searchMovies(cat, 1);
+              }}
+            >
+              {cat}
+            </button>
+          )
+        )}
       </nav>
       <div className="search">
         <input
@@ -108,31 +129,51 @@ const MovieList = () => {
         <>
           <div className="container">
             {movies.map((movie) => (
-              <div key={movie.imdbID} onClick={() => handleMovieClick(movie.imdbID)} style={{ cursor: 'pointer' }}>
+              <div
+                key={movie.imdbID}
+                onClick={() => handleMovieClick(movie.imdbID)}
+                style={{ cursor: "pointer" }}
+              >
                 <MovieCard movie={movie} />
               </div>
             ))}
           </div>
           <div className="pagination">
-            <button 
-              className="pagination-btn" 
-              onClick={() => searchMovies(searchTerm || "BatMan", page - 1)} 
+            <button
+              className="pagination-btn"
+              onClick={() => searchMovies(searchTerm || "BatMan", page - 1)}
               disabled={page <= 1}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="15,18 9,12 15,6"/>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <polyline points="15,18 9,12 15,6" />
               </svg>
               Previous
             </button>
-            <span className="pagination-info">Page {page} of {totalPages || 1}</span>
-            <button 
-              className="pagination-btn" 
-              onClick={() => searchMovies(searchTerm || "BatMan", page + 1)} 
+            <span className="pagination-info">
+              Page {page} of {totalPages || 1}
+            </span>
+            <button
+              className="pagination-btn"
+              onClick={() => searchMovies(searchTerm || "BatMan", page + 1)}
               disabled={page >= totalPages}
             >
               Next
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="9,18 15,12 9,6"/>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <polyline points="9,18 15,12 9,6" />
               </svg>
             </button>
           </div>
@@ -140,9 +181,16 @@ const MovieList = () => {
       ) : (
         <div className="empty">
           <div className="empty-icon">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="M21 21l-4.35-4.35"/>
+            <svg
+              width="64"
+              height="64"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
             </svg>
           </div>
           <h2>No movies found</h2>
@@ -162,7 +210,10 @@ const App = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot" element={<ForgotPassword />} />
       <Route path="/" element={isAuthenticated() ? <MovieList /> : <Login />} />
-      <Route path="/movie/:imdbID" element={isAuthenticated() ? <MovieDetail /> : <Login />} />
+      <Route
+        path="/movie/:imdbID"
+        element={isAuthenticated() ? <MovieDetail /> : <Login />}
+      />
     </Routes>
   );
 };

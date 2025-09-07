@@ -1,6 +1,11 @@
 import React from "react";
 
 const MovieCard = ({ movie: { imdbID, Year, Poster, Title, Type } }) => {
+  const placeholder = "https://via.placeholder.com/400x600?text=No+Image";
+  const safePoster = Poster && Poster !== "N/A"
+    ? Poster.startsWith("http://") ? Poster.replace("http://", "https://") : Poster
+    : placeholder;
+
   return (
     <div className="movie">
       <div>
@@ -8,8 +13,11 @@ const MovieCard = ({ movie: { imdbID, Year, Poster, Title, Type } }) => {
       </div>
       <div>
         <img
-          src={Poster !== "N/A" ? Poster : "https://via.placeholder.com/400"}
+          src={safePoster}
           alt={Title}
+          loading="lazy"
+          decoding="async"
+          onError={(e) => { if (e.currentTarget.src !== placeholder) e.currentTarget.src = placeholder; }}
         />
       </div>
       <div>
